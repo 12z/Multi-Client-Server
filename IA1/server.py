@@ -56,7 +56,7 @@ class ChatServer(object):
                 # inputready, outputready, exceptready = select.select(inputs, self.outputs, [])
                 inputready, outputready, exceptready = select.select([self.server], self.outputs, [])
             except select.error as e:
-                print(e.strerror())
+                print(e)
                 break
             except socket.error:
                 break
@@ -68,7 +68,7 @@ class ChatServer(object):
                     client, address = self.server.accept()
                     print('chatserver: got connection %d from %s' % (client.fileno(), address))
                     # Read the login name
-                    cname = client.receive().split('NAME: ')[1]
+                    cname = client.recv(BUFSIZ).split('NAME: ')[1]
 
                     # Compute client name and send back
                     self.clients += 1
@@ -94,6 +94,7 @@ class ChatServer(object):
                         if data:
                             # Send as new client's message...
                             msg = '\n#[' + self.getname(s) + ']>> ' + data
+                            print(msg)
                             # Send data to all except ourselves
                             for o in self.outputs:
                                 if o != s:
