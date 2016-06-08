@@ -4,7 +4,7 @@ import select
 import socket
 import sys
 import signal
-# from communication import send, receive
+from communication import send, receive
 
 BUFSIZ = 1024
 
@@ -68,18 +68,18 @@ class ChatServer(object):
                     client, address = self.server.accept()
                     print('chatserver: got connection %d from %s' % (client.fileno(), address))
                     # Read the login name
-                    cname = client.recv(BUFSIZ).split('NAME: ')[1]
+                    cname = receive(client).split('NAME: ')[1]
 
                     # Compute client name and send back
                     self.clients += 1
-                    client.send('CLIENT: ' + str(address[0]))
+                    send(client, 'CLIENT: ' + str(address[0]))
                     inputs.append(client)
 
                     self.clientmap[client] = (address, cname)
                     # Send joining information to other clients
                     msg = '\n(Connected: New client (%d) from %s)' % (self.clients, self.getname(client))
                     for o in self.outputs:
-                        o.send(msg)
+                        send(o, msg)
 
                     self.outputs.append(client)
 
@@ -90,7 +90,7 @@ class ChatServer(object):
                 else:
                     # handle all other sockets
                     try:
-                        data = s.recv(BUFSIZ)
+                        data = receive(s)
                         if data:
                             # Send as new client's message...
                             msg = '\n#[' + self.getname(s) + ']>> ' + data
@@ -98,7 +98,7 @@ class ChatServer(object):
                             # Send data to all except ourselves
                             for o in self.outputs:
                                 if o != s:
-                                    o.send(msg)
+                                    send(o, msg)
                         else:
                             print('chatserver: %d hung up' % s.fileno())
                             self.clients -= 1
@@ -109,7 +109,7 @@ class ChatServer(object):
                             # Send client leaving information to others
                             msg = '\n(Hung up: Client from %s)' % self.getname(s)
                             for o in self.outputs:
-                                o.send(msg)
+                                send(o, msg)
 
                     except socket.error:
                         # Remove

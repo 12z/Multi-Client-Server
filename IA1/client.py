@@ -9,7 +9,7 @@ a simple protocol to be used with chatserver.
 import socket
 import sys
 import select
-# from communication import send, receive
+from communication import send, receive
 
 BUFSIZ = 1024
 
@@ -31,8 +31,8 @@ class ChatClient(object):
             self.sock.connect((host, self.port))
             print('Connected to chat server@%d' % self.port)
             # Send my name...
-            self.sock.send('NAME: ' + self.name)
-            data = self.sock.recv(BUFSIZ)
+            send(self.sock, 'NAME: ' + self.name)
+            data = receive(self.sock)
             # Contains client address, set it
             addr = data.split('CLIENT: ')[1]
             self.prompt = '[' + '@'.join((self.name, addr)) + ']> '
@@ -54,9 +54,9 @@ class ChatClient(object):
                     if i == 0:
                         data = sys.stdin.readline().strip()
                         if data:
-                            self.sock.send(data)
+                            send(self.sock, data)
                     elif i == self.sock:
-                        data = self.sock.recv(BUFSIZ)
+                        data = receive(self.sock)
                         if not data:
                             print('Shutting down.')
                             self.flag = True
