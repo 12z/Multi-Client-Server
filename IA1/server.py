@@ -53,8 +53,8 @@ class ChatServer(object):
         while running:
 
             try:
-                # inputready, outputready, exceptready = select.select(inputs, self.outputs, [])
-                inputready, outputready, exceptready = select.select([self.server], self.outputs, [])
+                inputready, outputready, exceptready = select.select(inputs, self.outputs, [])
+                # inputready, outputready, exceptready = select.select([self.server], self.outputs, [])
             except select.error as e:
                 print(e)
                 break
@@ -85,6 +85,7 @@ class ChatServer(object):
 
                 elif s == sys.stdin:
                     # handle standard input
+                    print('got stdin event')
                     junk = sys.stdin.readline()
                     running = 0
                 else:
