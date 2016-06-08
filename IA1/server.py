@@ -85,9 +85,14 @@ class ChatServer(object):
 
                 elif s == sys.stdin:
                     # handle standard input
-                    print('got stdin event')
-                    junk = sys.stdin.readline()
-                    running = 0
+                    # print('got stdin event')
+                    line = sys.stdin.readline().strip('\n')
+                    # print('got input', line)
+                    if line == "list":
+                        for client in self.clientmap:
+                            # print('client')
+                            print(self.getname(client))
+                    # running = 0
                 else:
                     # handle all other sockets
                     try:
