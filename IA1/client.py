@@ -66,6 +66,7 @@ class ChatClient(object):
                             elif data.type == 'kick':
                                 print('You were kicked by the server')
                                 self.sock.close()
+                                self.flag = True
                                 break
 
             except KeyboardInterrupt:
