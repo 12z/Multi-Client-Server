@@ -102,7 +102,7 @@ class ChatServer(object):
                         name = line.split(' ')[1]
                         # print('here we kick', line.split(' ')[1])
                         for client in self.clientmap:
-                            if client[1] == name:
+                            if self.getname(client) == name:
                                 # Send client leaving information to others
                                 msg = '\n(Kicked: Client from %s)' % self.getname(client)
                                 for o in self.outputs:
