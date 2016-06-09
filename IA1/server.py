@@ -7,7 +7,7 @@ import signal
 import re
 from os import environ
 
-from communication import send, receive, Message, receive_name, send_address, send_message, BUFSIZ
+from communication import receive, receive_name, send_message
 
 
 class ChatServer(object):
@@ -59,10 +59,7 @@ class ChatServer(object):
         while running:
 
             try:
-                #print(inputs)
-                #print(self.outputs)
                 inputready, outputready, exceptready = select.select(inputs, self.outputs, [])
-                # inputready, outputready, exceptready = select.select([self.server], self.outputs, [])
             except select.error as e:
                 print(e)
                 break
@@ -93,7 +90,6 @@ class ChatServer(object):
 
                 elif s == sys.stdin:
                     # handle standard input
-                    # print('got stdin event')
                     line = sys.stdin.readline().strip('\n')
                     # print('got input', line)
                     if line == 'list':
@@ -135,12 +131,13 @@ class ChatServer(object):
                             s.close()
                             inputs.remove(s)
                             self.outputs.remove(s)
-                            del self.clientmap[s]
-
                             # Send client leaving information to others
                             msg = '\n(Hung up: Client from %s)' % self.getname(s)
                             for o in self.outputs:
                                 send_message(o, 'text', msg)
+
+                            # Removing it later to be able to get name earlier
+                            del self.clientmap[s]
 
                     except socket.error:
                         # Remove
