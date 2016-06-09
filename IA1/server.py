@@ -59,6 +59,8 @@ class ChatServer(object):
         while running:
 
             try:
+                #print(inputs)
+                #print(self.outputs)
                 inputready, outputready, exceptready = select.select(inputs, self.outputs, [])
                 # inputready, outputready, exceptready = select.select([self.server], self.outputs, [])
             except select.error as e:
@@ -110,7 +112,6 @@ class ChatServer(object):
                                 for o in self.outputs:
                                     send_message(o, 'text', msg)
                                 self.clients -= 1
-                                s.close()
                                 inputs.remove(client)
                                 self.outputs.remove(client)
                                 del self.clientmap[client]
