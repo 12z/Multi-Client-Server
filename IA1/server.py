@@ -102,7 +102,9 @@ class ChatServer(object):
                         name = line.split(' ')[1]
                         # print('here we kick', line.split(' ')[1])
                         for client in self.clientmap:
-                            if self.getname(client) == name:
+                            # print(self.getname(client))
+                            if self.getname(client).split('@')[0] == name:
+                                # print('got him')
                                 # Send client leaving information to others
                                 msg = '\n(Kicked: Client from %s)' % self.getname(client)
                                 for o in self.outputs:
@@ -111,6 +113,8 @@ class ChatServer(object):
                                 s.close()
                                 inputs.remove(client)
                                 self.outputs.remove(client)
+                                del self.clientmap[client]
+                                break
                 else:
                     # handle all other sockets
                     try:
@@ -130,6 +134,7 @@ class ChatServer(object):
                             s.close()
                             inputs.remove(s)
                             self.outputs.remove(s)
+                            del self.clientmap[s]
 
                             # Send client leaving information to others
                             msg = '\n(Hung up: Client from %s)' % self.getname(s)
@@ -140,6 +145,7 @@ class ChatServer(object):
                         # Remove
                         inputs.remove(s)
                         self.outputs.remove(s)
+                        del self.clientmap[s]
 
         self.server.close()
 
