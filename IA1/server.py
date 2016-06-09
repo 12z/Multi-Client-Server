@@ -11,8 +11,6 @@ from communication import receive, receive_name, send_message
 
 
 class ChatServer(object):
-    """ Simple chat server using select """
-
     def __init__(self, port=9999, backlog=5):
         self.clients = 0
         # Client map
@@ -54,9 +52,7 @@ class ChatServer(object):
 
         kick_command = re.compile('^kick.*')
 
-        running = 1
-
-        while running:
+        while True:
 
             try:
                 inputready, outputready, exceptready = select.select(inputs, self.outputs, [])

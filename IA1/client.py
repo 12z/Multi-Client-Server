@@ -1,11 +1,10 @@
 #! /usr/bin/env python
 
 import socket
-import sys
 import select
 from os import environ
 
-from communication import send, receive, Message, send_name, receive_address, send_message, BUFSIZ
+from communication import receive, receive_address, send_message
 
 
 class ChatClient(object):
@@ -33,12 +32,9 @@ class ChatClient(object):
     def cmdloop(self):
 
         if "TEST" in environ:
-            inputs = [self.sock]
+            inputs = [self.sock]  # For testing on Win
         else:
             inputs = [0, self.sock]
-
-        # testing message sending
-        send_message(self.sock, 'text', 'test')
 
         while not self.flag:
             try:
@@ -78,8 +74,13 @@ class ChatClient(object):
 if __name__ == "__main__":
     import sys
 
-    if len(sys.argv) < 3:
+    if len(sys.argv) == 3:
+        client = ChatClient(sys.argv[1], sys.argv[2], int(sys.argv[3]))
+    elif len(sys.argv) == 2:
+        client = ChatClient(sys.argv[1], sys.argv[2])
+    elif len(sys.argv) == 1:
+        client = ChatClient(sys.argv[1])
+    else:
         sys.exit('Usage: %s chatid host portno' % sys.argv[0])
 
-    client = ChatClient(sys.argv[1], sys.argv[2], int(sys.argv[3]))
     client.cmdloop()
