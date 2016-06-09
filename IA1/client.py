@@ -1,24 +1,14 @@
 #! /usr/bin/env python
 
-"""
-Simple chat client for the chat server. Defines
-a simple protocol to be used with chatserver.
-
-"""
-
 import socket
 import sys
 import select
 from os import environ
 
-from communication import send, receive
-
-BUFSIZ = 1024
+from communication import send, receive, Message, send_name, receive_address, send_message, BUFSIZ
 
 
 class ChatClient(object):
-    """ A simple command line chat client using select """
-
     def __init__(self, name, host='127.0.0.1', port=9999):
         self.name = name
         # Quit flag
@@ -33,11 +23,9 @@ class ChatClient(object):
             self.sock.connect((host, self.port))
             print('Connected to chat server@%d' % self.port)
             # Send my name...
-            send(self.sock, 'NAME: ' + self.name)
-            data = receive(self.sock)
-            # Contains client address, set it
-            addr = data.split('CLIENT: ')[1]
-            self.prompt = '[' + '@'.join((self.name, addr)) + ']> '
+            send_message(self.sock, 'name', self.name)
+            # Set prompt with client's address
+            self.prompt = '[' + '@'.join((self.name, receive_address(self.sock))) + ']> '
         except socket.error:
             print('Could not connect to chat server @%d' % self.port)
             sys.exit(1)
@@ -48,6 +36,9 @@ class ChatClient(object):
             inputs = [self.sock]
         else:
             inputs = [0, self.sock]
+
+        # testing message sending
+        send_message(self.sock, 'text', 'test')
 
         while not self.flag:
             try:
@@ -69,8 +60,13 @@ class ChatClient(object):
                             self.flag = True
                             break
                         else:
-                            sys.stdout.write(data + '\n')
-                            sys.stdout.flush()
+                            if data.type == 'text':
+                                sys.stdout.write(data.text + '\n')
+                                sys.stdout.flush()
+                            elif data.type == 'kick':
+                                print('You were kicked by the server')
+                                self.sock.close()
+                                break
 
             except KeyboardInterrupt:
                 print('Interrupted.')

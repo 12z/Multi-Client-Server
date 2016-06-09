@@ -4,11 +4,10 @@ import select
 import socket
 import sys
 import signal
+import re
 from os import environ
 
-from communication import send, receive
-
-BUFSIZ = 1024
+from communication import send, receive, Message, receive_name, send_address, send_message, BUFSIZ
 
 
 class ChatServer(object):
@@ -53,6 +52,8 @@ class ChatServer(object):
             inputs = [self.server, sys.stdin]
         self.outputs = []
 
+        kick_command = re.compile('^kick.*')
+
         running = 1
 
         while running:
@@ -73,18 +74,18 @@ class ChatServer(object):
                     client, address = self.server.accept()
                     print('chatserver: got connection %d from %s' % (client.fileno(), address))
                     # Read the login name
-                    cname = receive(client).split('NAME: ')[1]
+                    client_name = receive_name(client)
 
                     # Compute client name and send back
                     self.clients += 1
-                    send(client, 'CLIENT: ' + str(address[0]))
+                    send_message(client, 'address', str(address[0]))
                     inputs.append(client)
 
-                    self.clientmap[client] = (address, cname)
+                    self.clientmap[client] = (address, client_name)
                     # Send joining information to other clients
                     msg = '\n(Connected: New client (%d) from %s)' % (self.clients, self.getname(client))
                     for o in self.outputs:
-                        send(o, msg)
+                        send_message(o, 'text', msg)
 
                     self.outputs.append(client)
 
@@ -93,23 +94,25 @@ class ChatServer(object):
                     # print('got stdin event')
                     line = sys.stdin.readline().strip('\n')
                     # print('got input', line)
-                    if line == "list":
+                    if line == 'list':
                         for client in self.clientmap:
                             # print('client')
                             print(self.getname(client))
-                    # running = 0
+                    elif kick_command.match(line):
+                        print('here we kick', line.split(' ')[1])
                 else:
                     # handle all other sockets
                     try:
                         data = receive(s)
                         if data:
                             # Send as new client's message...
-                            msg = '\n#[' + self.getname(s) + ']>> ' + data
-                            print(msg)
+                            msg = '\n#[' + self.getname(s) + ']>> ' + data.text
+                            print('text: ', data.text)
+                            print('type: ', data.type)
                             # Send data to all except ourselves
                             for o in self.outputs:
                                 if o != s:
-                                    send(o, msg)
+                                    send_message(o, 'text', msg)
                         else:
                             print('chatserver: %d hung up' % s.fileno())
                             self.clients -= 1
@@ -120,7 +123,7 @@ class ChatServer(object):
                             # Send client leaving information to others
                             msg = '\n(Hung up: Client from %s)' % self.getname(s)
                             for o in self.outputs:
-                                send(o, msg)
+                                send_message(o, 'text', msg)
 
                     except socket.error:
                         # Remove
