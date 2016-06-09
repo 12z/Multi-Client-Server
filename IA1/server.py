@@ -107,10 +107,12 @@ class ChatServer(object):
                                 msg = '\n(Kicked: Client from %s)' % self.getname(client)
                                 for o in self.outputs:
                                     send_message(o, 'text', msg)
+                                send_message(client, 'kick', '')
                                 self.clients -= 1
                                 inputs.remove(client)
                                 self.outputs.remove(client)
                                 del self.clientmap[client]
+                                client.close()
                                 break
                 else:
                     # handle all other sockets
