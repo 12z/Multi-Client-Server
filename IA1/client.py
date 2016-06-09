@@ -74,11 +74,11 @@ class ChatClient(object):
 if __name__ == "__main__":
     import sys
 
-    if len(sys.argv) == 3:
+    if len(sys.argv) == 4:
         client = ChatClient(sys.argv[1], sys.argv[2], int(sys.argv[3]))
-    elif len(sys.argv) == 2:
+    elif len(sys.argv) == 3:
         client = ChatClient(sys.argv[1], sys.argv[2])
-    elif len(sys.argv) == 1:
+    elif len(sys.argv) == 2:
         client = ChatClient(sys.argv[1])
     else:
         sys.exit('Usage: %s chatid host portno' % sys.argv[0])
