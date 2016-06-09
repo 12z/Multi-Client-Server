@@ -107,8 +107,8 @@ class ChatServer(object):
                         if data:
                             # Send as new client's message...
                             msg = '\n#[' + self.getname(s) + ']>> ' + data.text
-                            print('text: ', data.text)
-                            print('type: ', data.type)
+                            # print('text: ', data.text)
+                            # print('type: ', data.type)
                             # Send data to all except ourselves
                             for o in self.outputs:
                                 if o != s:

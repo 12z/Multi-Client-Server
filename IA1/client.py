@@ -52,7 +52,7 @@ class ChatClient(object):
                     if i == 0:
                         data = sys.stdin.readline().strip()
                         if data:
-                            send(self.sock, data)
+                            send_message(self.sock, 'text', data)
                     elif i == self.sock:
                         data = receive(self.sock)
                         if not data:
