@@ -9,6 +9,8 @@ a simple protocol to be used with chatserver.
 import socket
 import sys
 import select
+from os import environ
+
 from communication import send, receive
 
 BUFSIZ = 1024
@@ -42,13 +44,18 @@ class ChatClient(object):
 
     def cmdloop(self):
 
+        if "TEST" in environ:
+            inputs = [self.sock]
+        else:
+            inputs = [0, self.sock]
+
         while not self.flag:
             try:
                 sys.stdout.write(self.prompt)
                 sys.stdout.flush()
 
                 # Wait for input from stdin & socket
-                inputready, outputready, exceptrdy = select.select([0, self.sock], [], [])
+                inputready, outputready, exceptrdy = select.select(inputs, [], [])
 
                 for i in inputready:
                     if i == 0:

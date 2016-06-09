@@ -4,6 +4,8 @@ import select
 import socket
 import sys
 import signal
+from os import environ
+
 from communication import send, receive
 
 BUFSIZ = 1024
@@ -45,7 +47,10 @@ class ChatServer(object):
 
     def serve(self):
 
-        inputs = [self.server, sys.stdin]
+        if "TEST" in environ:
+            inputs = [self.server]  # for testing on Win
+        else:
+            inputs = [self.server, sys.stdin]
         self.outputs = []
 
         running = 1
