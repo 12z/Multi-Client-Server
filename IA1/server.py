@@ -99,7 +99,18 @@ class ChatServer(object):
                             # print('client')
                             print(self.getname(client))
                     elif kick_command.match(line):
-                        print('here we kick', line.split(' ')[1])
+                        name = line.split(' ')[1]
+                        # print('here we kick', line.split(' ')[1])
+                        for client in self.clientmap:
+                            if client[1] == name:
+                                # Send client leaving information to others
+                                msg = '\n(Kicked: Client from %s)' % self.getname(client)
+                                for o in self.outputs:
+                                    send_message(o, 'text', msg)
+                                self.clients -= 1
+                                s.close()
+                                inputs.remove(client)
+                                self.outputs.remove(client)
                 else:
                     # handle all other sockets
                     try:
