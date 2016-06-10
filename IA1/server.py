@@ -33,6 +33,7 @@ class ChatServer(object):
             o.close()
 
         self.server.close()
+        exit()
 
     def getname(self, client):
 
